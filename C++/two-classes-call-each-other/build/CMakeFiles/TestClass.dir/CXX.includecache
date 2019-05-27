@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/parent.h
+son.h
+../include/son.h
+
+../include/son.h
+
+D:/Code/C++/test/src/main.cpp
+iostream
+-
+parent.h
+D:/Code/C++/test/src/parent.h
+
