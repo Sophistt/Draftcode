@@ -1,0 +1,43 @@
+""""""""""""""""""""""""
+"Personal configuration"
+""""""""""""""""""""""""
+"Remove consistency of vi"
+set nocompatible
+"Display row number"
+set number
+"Hide rolling"    
+set guioptions-=r 
+set guioptions-=L
+set guioptions-=b
+"Hide top bar"
+set showtabline=0
+"Set font"
+set guifont=Monaco:h13         
+syntax on   "¿ªÆôÓï·¨¸ßÁÁ"
+let g:solarized_termcolors=256  "solarizedÖ÷ÌâÉèÖÃÔÚÖÕ¶ËÏÂµÄÉèÖÃ"
+set background=dark     "ÉèÖÃ±³¾°É«"
+"colorscheme solarized
+"change comment color"
+highlight Comment ctermfg=green guifg=green
+set nowrap  "ÉèÖÃ²»ÕÛÐÐ"
+set fileformat=unix "ÉèÖÃÒÔunixµÄ¸ñÊ½±£´æÎÄ¼þ"
+set cindent     "ÉèÖÃCÑùÊ½µÄËõ½ø¸ñÊ½"
+set tabstop=4   "ÉèÖÃtable³¤¶È"
+set shiftwidth=4        "Í¬ÉÏ"
+set showmatch   "ÏÔÊ¾Æ¥ÅäµÄÀ¨ºÅ"
+set scrolloff=5     "¾àÀë¶¥²¿ºÍµ×²¿5ÐÐ"
+set laststatus=2    "Set commad line as two lines"
+set fenc=utf-8      "Unicode"
+set backspace=2
+set mouse=a     ""
+set selection=exclusive
+set selectmode=mouse,key
+set matchtime=5
+"set ignorecase      "ignore Caps lock"""
+set incsearch
+set hlsearch        "Highlight the searching item"
+set noexpandtab     "Prohibit extend table"
+set whichwrap+=<,>,h,l
+set autoread
+set cursorline      "Highlight current row"
+"set cursorcolumn        "Highlight current column""

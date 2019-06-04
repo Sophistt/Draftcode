@@ -41,7 +41,7 @@ class Vehicle(pygame.sprite.Sprite):
         self.yspeed = 0
 
         self.rot = 0
-        self.rot_speed = -50
+        self.rot_speed = -200
 
         self.surf = self.basic_surf
         self.rect = self.basic_rect
@@ -107,7 +107,7 @@ def main():
 
     running = True
     while running:
-        clock.tick(30)
+        clock.tick(200)
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
