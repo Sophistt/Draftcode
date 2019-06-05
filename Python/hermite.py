@@ -19,6 +19,10 @@ class Circle(pygame.sprite.Sprite):
         self.rect = self.surf.get_rect()
         pygame.gfxdraw.aacircle(self.surf, 15, 15, 14, (0, 255, 0))
 
+    def update(self):
+        self.rect.move_ip(1, 0)
+
+
 
 #-------------------------------------
 # beizer curve
@@ -58,20 +62,12 @@ def main():
     local_point = Circle()
     local_point.rect.center = (400, 300)
     
-    # Set 4 control points of bezier curve
-    ap_dict = {"x":350, "y":200}
-    ap1_dict = {"x":350, "y":240}
-    local1_dict = {"x":400, "y":250}
-    local_dict = {"x":400, "y":300}
-    cp = [local_dict, local1_dict, ap1_dict, ap_dict]
-    
-    # Compute bezier curve
-    pathplan = bezier(cp, 3)
-    print(pathplan)
+    background = pygame.Surface(screen.get_size())
+    background.fill((0, 0, 0))
 
     running = True
     while running:
-        clock.tick(60)
+        clock.tick(30)
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
@@ -79,13 +75,26 @@ def main():
             elif event.type == QUIT:
                 running = False
         
+        # Set 4 control points of bezier curve
+        ap_dict = {"x":ap_point.rect.center[0], "y":ap_point.rect.center[1]}
+        ap1_dict = {"x":ap_point.rect.center[0], "y":ap_point.rect.center[1] + 40}
+        local1_dict = {"x":local_point.rect.center[0], "y":local_point.rect.center[1] - 40}
+        local_dict = {"x":local_point.rect.center[0], "y":local_point.rect.center[1]}
+        cp = [local_dict, local1_dict, ap1_dict, ap_dict]
+        
+        # Compute bezier curve
+        pathplan = bezier(cp, 3)
+
+        screen.blit(background, (0, 0))
+
         for i in range(len(pathplan)):
             screen.set_at([int(pathplan[i]['x']), int(pathplan[i]['y'])], (255, 255, 255))
-
 
         screen.blit(ap_point.surf, ap_point.rect)
         screen.blit(local_point.surf, local_point.rect)
         pygame.display.flip()
+
+        ap_point.update()
 
 
 
