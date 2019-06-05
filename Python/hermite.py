@@ -17,10 +17,72 @@ class Circle(pygame.sprite.Sprite):
         super(Circle, self).__init__()
         self.surf = pygame.Surface((30,30), pygame.SRCALPHA)
         self.rect = self.surf.get_rect()
-        pygame.gfxdraw.aacircle(self.surf, 15, 15, 14, (0, 255, 0))
+        #pygame.gfxdraw.aacircle(self.surf, 15, 15, 14, (0, 255, 255))
+        pygame.gfxdraw.rectangle(self.surf, self.rect, (0, 255, 255))
 
     def update(self):
         self.rect.move_ip(1, 0)
+
+class Vehicle(pygame.sprite.Sprite):
+    def __init__(self,
+        xpos,
+        ypos):
+        super(Vehicle, self).__init__()
+
+        # Vehicle Parameter
+        # basic_xpos and basic_ypos are used for transform the rectangle
+        self.xpos = self.basic_xpos = xpos
+        self.ypos = self.basic_ypos = ypos
+
+        self.width = 10
+        self.height = 24
+        self.wheelBase = 15
+
+        self.rot = 0
+
+        # Use basic_surf and basic_rect to plot the vehicle
+        # Basic_surf and basic_rect are used to tranform the rectangle
+        self.basic_surf = pygame.Surface((self.height, self.width), pygame.SRCALPHA)
+        self.basic_rect = self.basic_surf.get_rect()
+        pygame.gfxdraw.rectangle(self.basic_surf, self.basic_rect, (0, 255, 255))
+        self.basic_rect.center = (self.basic_xpos, self.basic_ypos)
+
+        # ------------
+        self.surf = self.basic_surf
+        self.rect = self.basic_rect
+
+    
+    def rotate_according_to_turning_radius(self, radius, rotate_speed):
+        # TODO: rotate around the rear axle midpoint
+        if rotate_speed >= 0:
+            x_ordinate = self.xpos - radius * math.sin(math.radians(self.rot))
+            y_ordinate = self.ypos - radius * math.cos(math.radians(self.rot))
+            self.rot = (self.rot + rotate_speed) % 360
+            self.xpos = x_ordinate + radius * math.sin(math.radians(self.rot))
+            self.ypos = y_ordinate + radius * math.cos(math.radians(self.rot))
+        else:
+            x_ordinate = self.xpos + radius * math.sin(math.radians(self.rot))
+            y_ordinate = self.ypos + radius * math.cos(math.radians(self.rot))
+            self.rot = (self.rot + rotate_speed) % 360
+            self.xpos = x_ordinate - radius * math.sin(math.radians(self.rot))
+            self.ypos = y_ordinate - radius * math.cos(math.radians(self.rot))
+
+            self.surf = pygame.transform.rotate(self.basic_surf, self.rot)
+            self.rect = self.surf.get_rect()
+            self.rect.center = (self.xpos, self.ypos)
+
+
+    def setCenter(self, xpos, ypos):
+        self.rect.center = (xpos, ypos)
+
+
+    def update(self):
+        #self.rect.move_ip(0, 1)
+        self.rotate_according_to_turning_radius(50, -5)
+
+        self.surf = pygame.transform.rotate(self.basic_surf, self.rot)
+        self.rect = self.surf.get_rect()
+        self.rect.center = (self.xpos, self.ypos)
 
 
 
@@ -55,19 +117,21 @@ def main():
 
     clock = pygame.time.Clock()
     
+    ob_vehicle = Vehicle(400, 300)
 
     ap_point = Circle()
     ap_point.rect.center = (350, 200)
     
     local_point = Circle()
     local_point.rect.center = (400, 300)
+    print(local_point.rect.center)
     
     background = pygame.Surface(screen.get_size())
     background.fill((0, 0, 0))
 
     running = True
     while running:
-        clock.tick(30)
+        clock.tick(60)
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
@@ -90,11 +154,13 @@ def main():
         for i in range(len(pathplan)):
             screen.set_at([int(pathplan[i]['x']), int(pathplan[i]['y'])], (255, 255, 255))
 
+        screen.blit(ob_vehicle.surf, ob_vehicle.rect)
         screen.blit(ap_point.surf, ap_point.rect)
         screen.blit(local_point.surf, local_point.rect)
         pygame.display.flip()
 
         ap_point.update()
+        ob_vehicle.rotate_according_to_turning_radius(50, -5)
 
 
 

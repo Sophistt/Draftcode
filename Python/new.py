@@ -2,7 +2,6 @@ import pygame
 import math
 import random
 from pygame.locals import *
-import os
 
 
 class Player(pygame.sprite.Sprite):
@@ -41,7 +40,7 @@ class Vehicle(pygame.sprite.Sprite):
         self.yspeed = 0
 
         self.rot = 0
-        self.rot_speed = -200
+        self.rot_speed = -2
 
         self.surf = self.basic_surf
         self.rect = self.basic_rect
@@ -50,11 +49,11 @@ class Vehicle(pygame.sprite.Sprite):
 
     def rotate_according_to_turning_radius(self, radius, rotate_speed):
         if rotate_speed >= 0:
-            x_ordinate = self.xpos - radius * math.sin(math.radians())
-            y_ordinate = self.ypos - radius * math.cos(math.radians())
+            x_ordinate = self.xpos - radius * math.sin(math.radians(self.rot))
+            y_ordinate = self.ypos - radius * math.cos(math.radians(self.rot))
         else:
-            x_ordinate = self.xpos + radius * math.sin(math.radians())
-            y_ordinate = self.ypos + radius * math.cos(math.radians())
+            x_ordinate = self.xpos + radius * math.sin(math.radians(self.rot))
+            y_ordinate = self.ypos + radius * math.cos(math.radians(self.rot))
 
         self.rot = (self.rot + rotate_speed) % 360
 
@@ -83,6 +82,7 @@ class Vehicle(pygame.sprite.Sprite):
         #self.rot = (self.rot + self.rot_speed) % 360
         #self.xpos += self.xspeed
         self.compute()
+        #self.rotate_according_to_turning_radius(50, -5)
 
         self.surf = pygame.transform.rotate(self.basic_surf, self.rot)
         self.rect = self.surf.get_rect()
@@ -107,7 +107,7 @@ def main():
 
     running = True
     while running:
-        clock.tick(200)
+        clock.tick(60)
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
