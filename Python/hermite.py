@@ -51,26 +51,41 @@ class Vehicle(pygame.sprite.Sprite):
         self.surf = self.basic_surf
         self.rect = self.basic_rect
 
-    
-    def rotate_according_to_turning_radius(self, radius, rotate_speed):
+    def update_through_steer_and_speed(self, angle, speed):
         # TODO: rotate around the rear axle midpoint
-        if rotate_speed >= 0:
+        if angle == 0:
+            self.rect = self.surf.get_rect()
+            self.xpos = self.xpos + speed / 6
+            self.rect.center = (self.xpos, self.ypos)
+        
+        if angle > 0:
+            radius = self.wheelBase / math.tan(math.radians(angle))
             x_ordinate = self.xpos - radius * math.sin(math.radians(self.rot))
             y_ordinate = self.ypos - radius * math.cos(math.radians(self.rot))
-            self.rot = (self.rot + rotate_speed) % 360
+
+            delta_rot = math.asin(speed / (6 * radius))
+            self.rot = (self.rot + math.degrees(delta_rot)) % 360
+
             self.xpos = x_ordinate + radius * math.sin(math.radians(self.rot))
             self.ypos = y_ordinate + radius * math.cos(math.radians(self.rot))
-        else:
-            x_ordinate = self.xpos + radius * math.sin(math.radians(self.rot))
-            y_ordinate = self.ypos + radius * math.cos(math.radians(self.rot))
-            self.rot = (self.rot + rotate_speed) % 360
-            self.xpos = x_ordinate - radius * math.sin(math.radians(self.rot))
-            self.ypos = y_ordinate - radius * math.cos(math.radians(self.rot))
 
+            
             self.surf = pygame.transform.rotate(self.basic_surf, self.rot)
             self.rect = self.surf.get_rect()
             self.rect.center = (self.xpos, self.ypos)
 
+        if angle < 0:
+            radius = abs(self.wheelBase / math.tan(math.radians(angle)))
+            x_ordinate = self.xpos + radius * math.sin(math.radians(self.rot))
+            y_ordinate = self.ypos + radius * math.cos(math.radians(self.rot))
+            self.rot = (self.rot - speed / 6) % 360
+            self.xpos = x_ordinate - radius * math.sin(math.radians(self.rot))
+            self.ypos = y_ordinate - radius * math.cos(math.radians(self.rot))
+
+            
+            self.surf = pygame.transform.rotate(self.basic_surf, self.rot)
+            self.rect = self.surf.get_rect()
+            self.rect.center = (self.xpos, self.ypos)
 
     def setCenter(self, xpos, ypos):
         self.rect.center = (xpos, ypos)
@@ -131,7 +146,7 @@ def main():
 
     running = True
     while running:
-        clock.tick(60)
+        clock.tick(30)
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
@@ -160,7 +175,7 @@ def main():
         pygame.display.flip()
 
         ap_point.update()
-        ob_vehicle.rotate_according_to_turning_radius(50, -5)
+        ob_vehicle.update_through_steer_and_speed(30, 10)
 
 
 
