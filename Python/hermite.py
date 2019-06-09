@@ -1,5 +1,6 @@
 import pygame
 import pygame.gfxdraw
+import pygame.draw
 import math
 from pygame.locals import *
 
@@ -24,11 +25,11 @@ class Circle(pygame.sprite.Sprite):
         self.rect.move_ip(1, 0)
 
 
-
 class Vehicle(pygame.sprite.Sprite):
     def __init__(self,
         xpos,
-        ypos):
+        ypos,
+        color):
         super(Vehicle, self).__init__()
 
         # Vehicle Parameter
@@ -45,7 +46,7 @@ class Vehicle(pygame.sprite.Sprite):
         # Basic_surf and basic_rect are used to tranform the rectangle
         self.surf = self.basic_surf = pygame.Surface((self.height, self.width), pygame.SRCALPHA)
         self.rect = self.basic_rect = self.basic_surf.get_rect()
-        pygame.gfxdraw.rectangle(self.basic_surf, self.basic_rect, (0, 255, 255))
+        pygame.gfxdraw.rectangle(self.basic_surf, self.basic_rect, color)
         self.basic_rect.center = (self.basic_xpos, self.basic_ypos)
 
     #-----------------------------------------------------------
@@ -127,6 +128,14 @@ def bezier(control_points, rank):
 
     return planpath
 
+#----------------------------
+#
+#----------------------------
+def drawRoadLine(surface):
+    for i in range(8):
+        pygame.gfxdraw.line(surface, 100 * i, 300, 100 * i + 50, 300, (255, 255, 255))
+    pygame.gfxdraw.line(surface, 0, 284, 800, 284, (255, 255, 255))
+    pygame.gfxdraw.line(surface, 0, 316, 800, 316, (255, 255, 255))
 
 def main():
     pygame.init()
@@ -134,14 +143,8 @@ def main():
 
     clock = pygame.time.Clock()
     
-    ob_vehicle = Vehicle(400, 300)
-
-    ap_point = Circle()
-    ap_point.rect.center = (350, 200)
-    
-    local_point = Circle()
-    local_point.rect.center = (400, 300)
-    print(local_point.rect.center)
+    myVehicle = Vehicle(100, 308, (0, 255, 255))
+    obVehicle = Vehicle(200, 308, (255, 255, 0))
     
     background = pygame.Surface(screen.get_size())
     background.fill((0, 0, 0))
@@ -156,29 +159,29 @@ def main():
             elif event.type == QUIT:
                 running = False
         
+        # Render background and road line
+        screen.blit(background, (0, 0))
+        drawRoadLine(screen)
+
+        obVehicle.update_through_steer_and_speed(0, 5)
+        myVehicle.update_through_steer_and_speed(0, 10)
+        
         # Set 4 control points of bezier curve
-        ap_dict = {"x":ap_point.rect.center[0], "y":ap_point.rect.center[1]}
-        ap1_dict = {"x":ap_point.rect.center[0], "y":ap_point.rect.center[1] + 40}
-        local1_dict = {"x":local_point.rect.center[0], "y":local_point.rect.center[1] - 40}
-        local_dict = {"x":local_point.rect.center[0], "y":local_point.rect.center[1]}
+        local_dict = {"x":myVehicle.rect.center[0], "y":myVehicle.rect.center[1]}
+        ap_dict = {"x":myVehicle.rect.center[0] + 75, "y":myVehicle.rect.center[1] - 16}
+        local1_dict = {"x":myVehicle.rect.center[0] + 30, "y":myVehicle.rect.center[1]}
+        ap1_dict = {"x":myVehicle.rect.center[0] + 35, "y":myVehicle.rect.center[1] - 16}
         cp = [local_dict, local1_dict, ap1_dict, ap_dict]
         
         # Compute bezier curve
         pathplan = bezier(cp, 3)
 
-        screen.blit(background, (0, 0))
-
         for i in range(len(pathplan)):
             screen.set_at([int(pathplan[i]['x']), int(pathplan[i]['y'])], (255, 255, 255))
 
-        screen.blit(ob_vehicle.surf, ob_vehicle.rect)
-        screen.blit(ap_point.surf, ap_point.rect)
-        screen.blit(local_point.surf, local_point.rect)
+        screen.blit(obVehicle.surf, obVehicle.rect)
+        screen.blit(myVehicle.surf, myVehicle.rect)
         pygame.display.flip()
-
-        ap_point.update()
-        ob_vehicle.update_through_steer_and_speed(30, 10)
-
 
 
 if __name__ == "__main__":
