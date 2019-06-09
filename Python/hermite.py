@@ -23,6 +23,8 @@ class Circle(pygame.sprite.Sprite):
     def update(self):
         self.rect.move_ip(1, 0)
 
+
+
 class Vehicle(pygame.sprite.Sprite):
     def __init__(self,
         xpos,
@@ -33,24 +35,24 @@ class Vehicle(pygame.sprite.Sprite):
         # basic_xpos and basic_ypos are used for transform the rectangle
         self.xpos = self.basic_xpos = xpos
         self.ypos = self.basic_ypos = ypos
+        self.rot = 0  # The direction of the vehicle, it equals 0 if the vehicle face right
 
-        self.width = 10
-        self.height = 24
-        self.wheelBase = 15
-
-        self.rot = 0
+        self.width = 10  # 2.0m
+        self.height = 24  # 4.8m
+        self.wheelBase = 15  #3.0m
 
         # Use basic_surf and basic_rect to plot the vehicle
         # Basic_surf and basic_rect are used to tranform the rectangle
-        self.basic_surf = pygame.Surface((self.height, self.width), pygame.SRCALPHA)
-        self.basic_rect = self.basic_surf.get_rect()
+        self.surf = self.basic_surf = pygame.Surface((self.height, self.width), pygame.SRCALPHA)
+        self.rect = self.basic_rect = self.basic_surf.get_rect()
         pygame.gfxdraw.rectangle(self.basic_surf, self.basic_rect, (0, 255, 255))
         self.basic_rect.center = (self.basic_xpos, self.basic_ypos)
 
-        # ------------
-        self.surf = self.basic_surf
-        self.rect = self.basic_rect
-
+    #-----------------------------------------------------------
+    # Update_through_steer_and_speed
+    # Desciption: Update the position and direction of the vehicle according to steer and speed
+    # Input: speed(m/s), angle(degree)
+    #-----------------------------------------------------------
     def update_through_steer_and_speed(self, angle, speed):
         # TODO: rotate around the rear axle midpoint
         if angle == 0:
