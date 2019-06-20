@@ -3,7 +3,7 @@ import pygame.gfxdraw
 import pygame.draw
 import math
 from pygame.locals import *
-
+from purepursuit import PurePursuit
 
 
 class Point(pygame.sprite.Sprite):
@@ -40,7 +40,7 @@ class Vehicle(pygame.sprite.Sprite):
 
         self.width = 10  # 2.0m
         self.height = 24  # 4.8m
-        self.wheelBase = 15  #3.0m
+        self.wheelBase = 15  # 3.0m
 
         # Use basic_surf and basic_rect to plot the vehicle
         # Basic_surf and basic_rect are used to tranform the rectangle
@@ -56,9 +56,14 @@ class Vehicle(pygame.sprite.Sprite):
     #-----------------------------------------------------------
     def update_through_steer_and_speed(self, angle, speed):
         # TODO: rotate around the rear axle midpoint
+        if abs(angle < 0.00000001):
+            angle = 0
+
+
         if angle == 0:
             self.rect = self.surf.get_rect()
-            self.xpos = self.xpos + speed / 6
+            self.xpos = self.xpos + (speed / 6) * math.cos(math.radians(self.rot))
+            self.ypos = self.ypos - (speed / 6) * math.sin(math.radians(self.rot))
             self.rect.center = (self.xpos, self.ypos)
         
         if angle > 0:
@@ -79,14 +84,16 @@ class Vehicle(pygame.sprite.Sprite):
 
         if angle < 0:
             radius = abs(self.wheelBase / math.tan(math.radians(angle)))
-            x_ordinate = self.xpos + radius * math.sin(math.radians(self.rot))
+            x_ordinate = self.xpos - radius * math.sin(math.radians(self.rot))
             y_ordinate = self.ypos + radius * math.cos(math.radians(self.rot))
-            self.rot = (self.rot - speed / 6) % 360
-            self.xpos = x_ordinate - radius * math.sin(math.radians(self.rot))
-            self.ypos = y_ordinate - radius * math.cos(math.radians(self.rot))
-
             
-            self.surf = pygame.transform.rotate(self.basic_surf, self.rot)
+            delta_rot = math.asin(speed / (6 * radius))
+            self.rot = (self.rot + math.degrees(delta_rot)) % 360
+
+            self.xpos = x_ordinate + radius * math.sin(math.radians(self.rot))
+            self.ypos = y_ordinate - radius * math.cos(math.radians(self.rot))
+            
+            self.surf = pygame.transform.rotate(self.basic_surf, -self.rot)
             self.rect = self.surf.get_rect()
             self.rect.center = (self.xpos, self.ypos)
 
@@ -137,6 +144,8 @@ def drawRoadLine(surface):
     pygame.gfxdraw.line(surface, 0, 284, 800, 284, (255, 255, 255))
     pygame.gfxdraw.line(surface, 0, 316, 800, 316, (255, 255, 255))
 
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((800, 600))
@@ -145,6 +154,8 @@ def main():
     
     myVehicle = Vehicle(100, 308, (0, 255, 255))
     obVehicle = Vehicle(200, 308, (255, 255, 0))
+
+    purepursuit = PurePursuit()
     
     background = pygame.Surface(screen.get_size())
     background.fill((0, 0, 0))
@@ -163,19 +174,32 @@ def main():
         screen.blit(background, (0, 0))
         drawRoadLine(screen)
 
-        obVehicle.update_through_steer_and_speed(0, 5)
-        myVehicle.update_through_steer_and_speed(0, 10)
+        # obVehicle.update_through_steer_and_speed(0, 5)
+        # myVehicle.update_through_steer_and_speed(0, 10)
         
         # Set 4 control points of bezier curve
         local_dict = {"x":myVehicle.rect.center[0], "y":myVehicle.rect.center[1]}
-        ap_dict = {"x":myVehicle.rect.center[0] + 75, "y":myVehicle.rect.center[1] - 16}
+
+        # Search goal Point
+        tmpGoalX = myVehicle.rect.center[0] + 75
+        tmpGoalY = myVehicle.rect.center[1]
+        if tmpGoalX < obVehicle.rect.center[0] + 0.5 * obVehicle.height and tmpGoalX > obVehicle.rect.center[0] - 0.5 * obVehicle.height:
+            tmpGoalY = obVehicle.rect.center[1] - 16
+
+        ap_dict = {'x': tmpGoalX, 'y': tmpGoalY}
         local1_dict = {"x":myVehicle.rect.center[0] + 30, "y":myVehicle.rect.center[1]}
-        ap1_dict = {"x":myVehicle.rect.center[0] + 35, "y":myVehicle.rect.center[1] - 16}
+        ap1_dict = {'x': tmpGoalX - 30, 'y': tmpGoalY}
         cp = [local_dict, local1_dict, ap1_dict, ap_dict]
         
         # Compute bezier curve
         pathplan = bezier(cp, 3)
 
+        # Compute tire angle
+        tireAngle = purepursuit.trajectoryTracking(pathplan, local1_dict, myVehicle.rot)
+
+        obVehicle.update_through_steer_and_speed(0, 5)
+        myVehicle.update_through_steer_and_speed(-0.55, 10)
+        
         for i in range(len(pathplan)):
             screen.set_at([int(pathplan[i]['x']), int(pathplan[i]['y'])], (255, 255, 255))
 
