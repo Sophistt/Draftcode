@@ -10,16 +10,17 @@ from pathplan import Point, PathPlan
 # import pygame.locals for easier access to key coordinates
 from pygame.locals import *
 
+
 class Vehicle(pygame.sprite.Sprite):
-    def __init__(self, x, y, image_path, 
-            angle=0.0, 
-            length=4, 
-            max_steering=30, 
-            max_acceleration=5.0):
+    def __init__(self, x, y, image_path,
+                 angle=0.0,
+                 length=4,
+                 max_steering=30,
+                 max_acceleration=5.0):
         super(Vehicle, self).__init__()
-        
+
         # Pygame parameters
-        self.image = self.ori_image =  pygame.image.load(image_path) # Use origin image for rotation
+        self.image = self.ori_image = pygame.image.load(image_path)  # Use origin image for rotation
         self.rect = self.image.get_rect()
 
         # Vehicle parameters
@@ -65,7 +66,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.ticks = 60
         self.exit = False
-    
+
     # Draw road line
     def drawRoadLine(self):
         for i in range(13):
@@ -73,17 +74,16 @@ class Game:
         pygame.gfxdraw.line(self.screen, 0, 368, 1280, 368, (255, 255, 255))
         pygame.gfxdraw.line(self.screen, 0, 592, 1280, 592, (255, 255, 255))
 
-
     def run(self):
-        ppu = 32 # Pixel per unit
-        
-        all_sprites = pygame.sprite.Group() # Create a new sprite group
-        
-        # Get image path 
+        ppu = 32  # Pixel per unit
+
+        all_sprites = pygame.sprite.Group()  # Create a new sprite group
+
+        # Get image path
         current_dir = os.path.dirname(os.path.abspath(__file__))
         image_path = os.path.join(current_dir, "image/car.png")
-        obstacle_path = os.path.join(current_dir, "image/obstacle.png") 
-        
+        obstacle_path = os.path.join(current_dir, "image/obstacle.png")
+
         # Register sprites
         vehicle = Vehicle(2, 16.75, image_path)
         all_sprites.add(vehicle)
@@ -91,12 +91,9 @@ class Game:
         obstacle = Vehicle(10, 16.75, obstacle_path)
         all_sprites.add(obstacle)
 
-        # Path plan
-        pathplan = PathPlan(30)
-
-        # Game loop 
+        # Game loop
         while not self.exit:
-            # Set tick    
+            # Set tick
             dt = self.clock.get_time() / 1000
             self.clock.tick(self.ticks)
 
@@ -107,35 +104,35 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.exit = True
-            
+
             # Path Plan and purepursuit
             vehicle.acceleration = 3
             vehicle.acceleration = max(-vehicle.max_acceleration, min(vehicle.acceleration, vehicle.max_acceleration))
 
             obstacle.velocity.x = 5
             obstacle.steering = 5
-            
+
             # Compute hermite curve
-            curPoint = vehicle.position 
+            curPoint = vehicle.position
             aPoint = (vehicle.position.x + 15, vehicle.position.y - 3.5)
-            path = pathplan.hermite(curPoint, aPoint, 0)
-            
+            path = PathPlan.hermite(curPoint, aPoint, 0)
+
             # Drawing
             self.screen.fill((0, 0, 0))
             self.drawRoadLine()
-            
+
             for entity in all_sprites:
-                entity.update(dt) # Update of logic and image
-                self.screen.blit(entity.image, entity.position * ppu - (entity.rect.width / 2, entity.rect.height /2))
-            
+                entity.update(dt)  # Update of logic and image
+                self.screen.blit(entity.image, entity.position * ppu - (entity.rect.width / 2, entity.rect.height / 2))
+
             # Draw plan path
             for i in range(len(path)):
-                self.screen.set_at([int( ppu * path[i].x), int(ppu * path[i].y)], (255, 255, 255))
+                self.screen.set_at([int(ppu * path[i].x), int(ppu * path[i].y)], (255, 255, 255))
 
             pygame.display.flip()
         pygame.quit()
 
+
 if __name__ == "__main__":
     game = Game()
     game.run()
-
