@@ -4,8 +4,22 @@ import pygame.gfxdraw
 from math import tan, radians, degrees, copysign
 from pygame.math import Vector2
 
-class Vehicle:
-    def __init__(self, x, y, angle=0.0, length=4, max_steering=30, max_acceleration=5.0):
+# import pygame.locals for easier access to key coordinates
+from pygame.locals import *
+
+class Vehicle(pygame.sprite.Sprite):
+    def __init__(self, x, y, image_path, 
+            angle=0.0, 
+            length=4, 
+            max_steering=30, 
+            max_acceleration=5.0):
+        super(Vehicle, self).__init__()
+        
+        # Pygame parameters
+        self.image = self.ori_image =  pygame.image.load(image_path) # Use origin image for rotation
+        self.rect = self.image.get_rect()
+
+        # Vehicle parameters
         self.position = Vector2(x, y)
         self.velocity = Vector2(0.0, 0.0)
         self.angle = angle
@@ -20,6 +34,7 @@ class Vehicle:
         self.steering = 0.0
 
     def update(self, dt):
+        # Logic update
         self.velocity += (self.acceleration * dt, 0)
         self.velocity.x = max(-self.max_velocity, min(self.velocity.x, self.max_velocity))
 
@@ -31,6 +46,10 @@ class Vehicle:
 
         self.position += self.velocity.rotate(-self.angle) * dt
         self.angle += degrees(angular_velocity) * dt
+
+        # Image update
+        self.image = pygame.transform.rotate(self.ori_image, self.angle)
+        self.rect = self.image.get_rect()
 
 
 class Game:
@@ -44,6 +63,7 @@ class Game:
         self.ticks = 60
         self.exit = False
     
+    # Draw road line
     def drawRoadLine(self):
         for i in range(13):
             pygame.gfxdraw.line(self.screen, 100 * i, 480, 100 * i + 50, 480, (255, 255, 255))
@@ -52,18 +72,23 @@ class Game:
 
 
     def run(self):
+        ppu = 32 # Pixel per unit
+        
+        all_sprites = pygame.sprite.Group() # Create a new sprite group
+        
+        # Get image path 
         current_dir = os.path.dirname(os.path.abspath(__file__))
         image_path = os.path.join(current_dir, "image/car.png")
         obstacle_path = os.path.join(current_dir, "image/obstacle.png") 
         
-        vehicle_image = pygame.image.load(image_path)
-        obstacle_image = pygame.image.load(obstacle_path)
-        
-        ppu = 32
+        # Register sprites
+        vehicle = Vehicle(2, 16.75, image_path)
+        all_sprites.add(vehicle)
 
-        vehicle = Vehicle(2, 15)
-        obstacle = Vehicle(10, 16.75)
+        obstacle = Vehicle(10, 16.75, obstacle_path)
+        all_sprites.add(obstacle)
 
+        # Game loop 
         while not self.exit:
             # Set tick    
             dt = self.clock.get_time() / 1000
@@ -82,26 +107,17 @@ class Game:
             vehicle.acceleration = max(-vehicle.max_acceleration, min(vehicle.acceleration, vehicle.max_acceleration))
 
             obstacle.velocity.x = 5
-            obstacle.steering = 30
-
-            # Logic
-            vehicle.update(dt)
-            obstacle.update(dt)
+            obstacle.steering = 5
 
             # Drawing
             self.screen.fill((0, 0, 0))
             self.drawRoadLine()
             
-            rotated = pygame.transform.rotate(vehicle_image, vehicle.angle)
-            rect = rotated.get_rect()
-
-            ob_rotated = pygame.transform.rotate(obstacle_image, obstacle.angle)
-            ob_rect = ob_rotated.get_rect()
-
-            self.screen.blit(rotated, vehicle.position * ppu - (rect.width / 2, rect.height / 2))
-            self.screen.blit(ob_rotated, obstacle.position * ppu - (ob_rect.width / 2, ob_rect.height / 2))
+            for entity in all_sprites:
+                entity.update(dt) # Update of logic and image
+                self.screen.blit(entity.image, entity.position * ppu - (entity.rect.width / 2, entity.rect.height /2))
+            
             pygame.display.flip()
-
         pygame.quit()
 
 if __name__ == "__main__":
