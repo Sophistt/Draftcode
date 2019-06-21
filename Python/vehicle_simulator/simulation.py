@@ -2,7 +2,10 @@ import os
 import pygame
 import pygame.gfxdraw
 from math import tan, radians, degrees, copysign
+
 from pygame.math import Vector2
+
+from pathplan import Point, PathPlan
 
 # import pygame.locals for easier access to key coordinates
 from pygame.locals import *
@@ -88,6 +91,9 @@ class Game:
         obstacle = Vehicle(10, 16.75, obstacle_path)
         all_sprites.add(obstacle)
 
+        # Path plan
+        pathplan = PathPlan(30)
+
         # Game loop 
         while not self.exit:
             # Set tick    
@@ -108,7 +114,12 @@ class Game:
 
             obstacle.velocity.x = 5
             obstacle.steering = 5
-
+            
+            # Compute hermite curve
+            curPoint = vehicle.position 
+            aPoint = (vehicle.position.x + 15, vehicle.position.y - 3.5)
+            path = pathplan.hermite(curPoint, aPoint, 0)
+            
             # Drawing
             self.screen.fill((0, 0, 0))
             self.drawRoadLine()
@@ -117,6 +128,10 @@ class Game:
                 entity.update(dt) # Update of logic and image
                 self.screen.blit(entity.image, entity.position * ppu - (entity.rect.width / 2, entity.rect.height /2))
             
+            # Draw plan path
+            for i in range(len(path)):
+                self.screen.set_at([int( ppu * path[i].x), int(ppu * path[i].y)], (255, 255, 255))
+
             pygame.display.flip()
         pygame.quit()
 
