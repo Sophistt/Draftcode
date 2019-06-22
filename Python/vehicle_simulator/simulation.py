@@ -7,10 +7,14 @@ from pygame.math import Vector2
 
 from pathplan import Point, PathPlan
 
+from purepursuit import PurePursuit
+
 # import pygame.locals for easier access to key coordinates
 from pygame.locals import *
 
 
+# Vehicle contains parameters of vehicles and provides
+# a method to update the status of vehicles.
 class Vehicle(pygame.sprite.Sprite):
     def __init__(self, x, y, image_path,
                  angle=0.0,
@@ -56,23 +60,24 @@ class Vehicle(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
 
+# Game class is responsible for the whole game loop and display of elements.
 class Game:
     def __init__(self):
         pygame.init()
         pygame.display.set_caption("Vehicle Simulation")
-        width = 1280
+        width = 1920
         height = 960
         self.screen = pygame.display.set_mode((width, height))
         self.clock = pygame.time.Clock()
-        self.ticks = 60
+        self.ticks = 30
         self.exit = False
 
     # Draw road line
     def drawRoadLine(self):
-        for i in range(13):
+        for i in range(20):
             pygame.gfxdraw.line(self.screen, 100 * i, 480, 100 * i + 50, 480, (255, 255, 255))
-        pygame.gfxdraw.line(self.screen, 0, 368, 1280, 368, (255, 255, 255))
-        pygame.gfxdraw.line(self.screen, 0, 592, 1280, 592, (255, 255, 255))
+        pygame.gfxdraw.line(self.screen, 0, 368, 1920, 368, (255, 255, 255))
+        pygame.gfxdraw.line(self.screen, 0, 592, 1920, 592, (255, 255, 255))
 
     def run(self):
         ppu = 32  # Pixel per unit
@@ -88,8 +93,11 @@ class Game:
         vehicle = Vehicle(2, 16.75, image_path)
         all_sprites.add(vehicle)
 
-        obstacle = Vehicle(10, 16.75, obstacle_path)
+        obstacle = Vehicle(22, 16.75, obstacle_path)
         all_sprites.add(obstacle)
+
+        # Pure pursuit for trajectory
+        purepursuit = PurePursuit()
 
         # Game loop
         while not self.exit:
@@ -104,18 +112,19 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.exit = True
-
+            
+            # Set velocity of obstacle
+            obstacle.velocity.x = 3
             # Path Plan and purepursuit
-            vehicle.acceleration = 3
-            vehicle.acceleration = max(-vehicle.max_acceleration, min(vehicle.acceleration, vehicle.max_acceleration))
-
-            obstacle.velocity.x = 5
-            obstacle.steering = 5
 
             # Compute hermite curve
             curPoint = vehicle.position
-            aPoint = (vehicle.position.x + 15, vehicle.position.y - 3.5)
+            aPoint = PathPlan.searchGoalPoint(curPoint, obstacle)
             path = PathPlan.hermite(curPoint, aPoint, 0)
+            
+            # Compute angle to avoid obstacles
+            vehicle.angle = -purepursuit.trajectoryTracking(path, vehicle.position, vehicle.angle)
+            vehicle.acceleration = 3
 
             # Drawing
             self.screen.fill((0, 0, 0))
