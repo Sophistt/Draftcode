@@ -21,6 +21,7 @@ class Vehicle(pygame.sprite.Sprite):
                  length=4,
                  max_steering=30,
                  max_acceleration=5.0):
+        # Call Sprite __init__ function
         super(Vehicle, self).__init__()
 
         # Pygame parameters
