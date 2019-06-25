@@ -1,4 +1,4 @@
-#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
 
 #IncludeRegexScan: ^.*$
 
@@ -12,9 +12,19 @@ son.h
 
 ../include/son.h
 
-D:/Code/C++/test/src/main.cpp
+/home/wcy/code/Draftcode/C++/two-classes-call-each-other/src/main.cpp
 iostream
 -
 parent.h
-D:/Code/C++/test/src/parent.h
+/home/wcy/code/Draftcode/C++/two-classes-call-each-other/src/parent.h
+
+/home/wcy/code/Draftcode/C++/two-classes-call-each-other/src/parent.cpp
+parent.h
+/home/wcy/code/Draftcode/C++/two-classes-call-each-other/src/parent.h
+
+/home/wcy/code/Draftcode/C++/two-classes-call-each-other/src/son.cpp
+iostream
+-
+parent.h
+/home/wcy/code/Draftcode/C++/two-classes-call-each-other/src/parent.h
 

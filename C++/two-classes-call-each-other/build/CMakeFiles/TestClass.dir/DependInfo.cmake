@@ -4,9 +4,9 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "D:/Code/C++/test/src/main.cpp" "D:/Code/C++/test/build/CMakeFiles/TestClass.dir/src/main.cpp.obj"
-  "D:/Code/C++/test/src/parent.cpp" "D:/Code/C++/test/build/CMakeFiles/TestClass.dir/src/parent.cpp.obj"
-  "D:/Code/C++/test/src/son.cpp" "D:/Code/C++/test/build/CMakeFiles/TestClass.dir/src/son.cpp.obj"
+  "/home/wcy/code/Draftcode/C++/two-classes-call-each-other/src/main.cpp" "/home/wcy/code/Draftcode/C++/two-classes-call-each-other/build/CMakeFiles/TestClass.dir/src/main.cpp.o"
+  "/home/wcy/code/Draftcode/C++/two-classes-call-each-other/src/parent.cpp" "/home/wcy/code/Draftcode/C++/two-classes-call-each-other/build/CMakeFiles/TestClass.dir/src/parent.cpp.o"
+  "/home/wcy/code/Draftcode/C++/two-classes-call-each-other/src/son.cpp" "/home/wcy/code/Draftcode/C++/two-classes-call-each-other/build/CMakeFiles/TestClass.dir/src/son.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

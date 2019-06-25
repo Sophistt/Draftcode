@@ -1,0 +1,1 @@
+/usr/bin/c++      CMakeFiles/TestClass.dir/src/main.cpp.o CMakeFiles/TestClass.dir/src/parent.cpp.o CMakeFiles/TestClass.dir/src/son.cpp.o  -o ../bin/TestClass  -L/home/wcy/code/Draftcode/C++/two-classes-call-each-other/libs -rdynamic 
