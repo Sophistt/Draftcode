@@ -2,8 +2,17 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0)     
 # 项目名称 
 PROJECT(TestClass)
-# 设置C语言编译器选项： O3 优化代码，Wall 显示所有警告, march=native自动匹配编译器类型
-SET(CMAKE_C_FLAGS "$ENV{CFLAGS} -O3 -Wall -march=native") 
+
+# 设置为Debug模式
+SET (CMAKE_BUILD_TYPE "Debug")
+
+# SET(CMAKE_C_FLAGS "$ENV{CFLAGS} -O3 -Wall -march=native")
+
+# 设置CXX Debug 选项：g 调试，ggdb 使用gdb作为调试工具
+SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g -ggdb")
+
+# 设置CXX Release 选项： O3 优化代码，Wall 显示所有警告, march=native自动匹配编译器类型
+SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall -march=native")
 
 # 使用 C++ 11 编译
 add_definitions(-std=c++11)
