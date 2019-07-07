@@ -1,4 +1,9 @@
 
+class Message {
+    public static String getMessage() {
+        return "China";
+    }
+}
 
 
 class Person {
@@ -6,7 +11,13 @@ class Person {
     // Class members
     private String name;
     private int age;
-    private static String country = "China";
+    private static String country;
+
+    // Static code block for initialization of static members
+    // Only called once
+    static {
+        country = Message.getMessage();
+    }
     
     // Construction methods
     public Person() {
@@ -55,6 +66,12 @@ class Person {
 
 
 public class JavaDemo {
+
+    // Code here will be called before main function.
+    static {
+        System.out.println("******** Process initialization *******");
+    }
+
     public static void main(String args[]) {
         System.out.println(Person.getCountry());
 
