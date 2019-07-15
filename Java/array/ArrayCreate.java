@@ -1,5 +1,5 @@
 
-public class arrayCreate {
+public class ArrayCreate {
     public static void main(String args []) {
         // dynamic array
         int array [] = new int [5]; 
