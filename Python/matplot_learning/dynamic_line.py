@@ -34,28 +34,28 @@ def main():
         x = np.linspace(-np.pi + 0.1 * index, np.pi +
                         0.1 * index, 256, endpoint=True)
         y_cos, y_sin = np.cos(x), np.sin(x)
-        
+
         # Set label of X axis
         plt.xlabel("X-axis")
         # Set minimum and maximum value of X axis
         plt.xlim(-4 + 0.1 * index, 4 + 0.1 * index)
         # Set scale interval of X axis
-        plt.xticks(np.linspace(-4 + 0.1*index, 4+0.1*index, 9, endpoint=True))
-        
+        plt.xticks(np.linspace(-4 + 0.1 * index, 4 + 0.1 * index, 9, endpoint=True))
+
         # Set lable of Y axis
         plt.ylabel("Y-axis")
         # Set minumum and maximum of Y axis
         plt.ylim(-1.0, 1.0)
-        # Set scale interval of Y axis 
+        # Set scale interval of Y axis
         plt.yticks(np.linspace(-1, 1, 9, endpoint=True))
-        
+
         # Display cos and sin lines
         plt.plot(x, y_cos, "b--", linewidth=2.0, label="cosLine")
         plt.plot(x, y_sin, "g-", linewidth=2.0, label="sinLine")
-        
-        # Set location of the floating window 
+
+        # Set location of the floating window
         plt.legend(loc="upper left", shadow=True)
-        
+
         # Render rate
         plt.pause(0.01)
 
