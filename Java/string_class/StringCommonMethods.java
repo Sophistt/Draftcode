@@ -12,6 +12,7 @@ public class StringCommonMethods {
 
         // ------------------------------ Search --------------------------------------
         String  strA = "Hello world";
+        
         // public boolen contains(String s)
         System.out.println(strA.contains("wang"));
         // public int indexOf(String str(, int fromIndex))
