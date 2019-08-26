@@ -1,0 +1,5 @@
+# Python stuff
+*.py[co]
+
+# Java binary files
+*.class
