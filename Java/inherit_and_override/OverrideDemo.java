@@ -3,6 +3,11 @@ class Channel {
     
     private String id;
 
+    @Deprecated  // Expired API, warnings will be showed while compiling
+    public String connection() {
+        return "Connect to somewhere";
+    }
+
     public void connect() {
         System.out.println("Connect to somewhere.");
     }
@@ -11,6 +16,7 @@ class Channel {
 class DatabaseChannel extends Channel {
     
     // We can override connect method in derived class. 
+    @Override  // Explicit define an override function
     public void connect() {
         System.out.println("Connect to database.");
     }
@@ -33,5 +39,7 @@ public class OverrideDemo {
         Publisher publisher = new Publisher();
         channel.connect();
         publisher.publish();
+        @SuppressWarnings({"deprecation"})  // Suppress warnings while compiling
+        channel.connection();
     }
 }
