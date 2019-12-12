@@ -48,12 +48,28 @@ def main():
     device = torch.device("cuda")
 
     model = Net()
-
-    output = model(torch.randn(1, 1, 28, 28))
-    print(output)
-
+    
+    input = torch.randn(1, 1, 28, 28)
+    output = model(input)
     for param in model.parameters():
         print(type(param.data), param.size())
+    
+    print("output: ", output)
+    output.backward(torch.randn(1, 10))
+    print(input.grad)
+    
+    # Gradients will be calculated and recorded automatically
+    x = torch.ones(2, 2, requires_grad=True)
+    print(x)
+    y = x + 2
+    print(y)
+    z = y * y * 3
+    out = z.mean()
+    print(z, out)
+
+    out.backward()
+    print(x.grad)
+
     
     return
 
