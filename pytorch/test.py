@@ -42,18 +42,33 @@ class Net(nn.Module):
         output = F.log_softmax(x, dim=1)
         return output
 
-
 def main():
 
     device = torch.device("cuda")
 
     model = Net()
-    
-    input = torch.randn(1, 1, 28, 28)
-    output = model(input)
+
+    # Print parameters of the NN model
     for param in model.parameters():
         print(type(param.data), param.size())
     
+    # Define Input
+    input = torch.randn(1, 1, 28, 28)
+    
+    output = model(input)
+
+    # Define target
+    target = torch.randn(10)
+    target = target.view(1, -1)  # Use view() to reshape tensor
+
+    loss = F.mse_loss(output, target)
+
+    # propagate backward the gradients
+    loss.backward()
+
+    # Update weights
+    optimizer = optim.SGD(model.parameters(), lr=0.01)
+
     print("output: ", output)
     output.backward(torch.randn(1, 10))
     print(input.grad)
