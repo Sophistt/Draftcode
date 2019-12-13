@@ -55,19 +55,22 @@ def main():
     # Define Input
     input = torch.randn(1, 1, 28, 28)
     
-    output = model(input)
-
     # Define target
     target = torch.randn(10)
     target = target.view(1, -1)  # Use view() to reshape tensor
-
+    
+    # Define loss
     loss = F.mse_loss(output, target)
-
-    # propagate backward the gradients
-    loss.backward()
-
-    # Update weights
+    
+    # Define Optimizer
     optimizer = optim.SGD(model.parameters(), lr=0.01)
+    
+    # Update weights
+    optimizer.zero_grad()
+    output = model(input)
+    loss.backward()  # propagate backward the gradients
+    optimizer.step()
+
 
     print("output: ", output)
     output.backward(torch.randn(1, 10))
