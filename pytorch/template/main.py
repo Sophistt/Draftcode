@@ -15,8 +15,9 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from torch.optim.lr_scheduler import StepLR
-from network import Net
 from params import parser
+from network import Net
+from data import CustomDataset
 
 
 def train(args, model, device, train_loader, optimizer, epoch):
@@ -31,11 +32,11 @@ def train(args, model, device, train_loader, optimizer, epoch):
         loss.backward()
         optimizer.step()
 
-    # Print info
-    # if batch_idx % args.log_interval == 0:
-    #     print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-    #         epoch, batch_idx % len(data), len(train_loader.dataset),
-    #         100. * batch_idx / len(train_loader), loss.item()))
+        # Print info
+        # if batch_idx % args.log_interval == 0:
+        #     print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+        #         epoch, batch_idx * len(data), len(train_loader.dataset),
+        #         100. * batch_idx / len(train_loader), loss.item()))
 
 
 def evaluate(args, model, device, eval_loader):
@@ -50,11 +51,11 @@ def evaluate(args, model, device, eval_loader):
             output = model(data)
             # Sum up batch loss
             eval_loss += F.nll_loss(output, target.view_as(output), reduction='sum').item()
-            # Get the index of the max log-probability
+            # Get the index of the max log-probability (Just for classification)
             pred = output.argmax(dim=1, keepdim=True)
             correct += pred.eq(target.view_as(pred)).sum().item()
 
-    return eval_loss, pred, correct
+    return eval_loss
     # Print info
     # eval_loss /= len(eval_loader.dataset)
     # print('\nEval set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
@@ -73,18 +74,27 @@ def main():
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
     
-    # train_loader = torch.utils.data.DataLoader()
-    # eval_loader = torch.utils.data.DataLoader() 
+    # TODO  Define your own train and evaluate dataset
+    train_dataset = CustomDataset()
+    eval_dataset = CustomDataset()
 
+    # Define train and evaluation dataloader
+    train_loader = torch.utils.data.DataLoader(train_dataset, 
+        batch_size=args.batch_size,shuffle=True, **kwargs)
+    eval_loader = torch.utils.data.DataLoader(eval_dataset, 
+        batch_size=args.eval_batch_size, shuffle=False, **kwargs) 
+
+    # Define nerual network model and Optimizer 
     model = Net().to(device)
     optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
+    
     # Scheduler of decreasing learning rate each epoch
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
 
     # Train neural network
     for epoch in range(1, args.epoch + 1):
         train(args, model, device, train_loader, optimizer, epoch)
-        eval_loss, pred, correct = evaluate(args, model, device, eval_loader)
+        eval_loss = evaluate(args, model, device, eval_loader)
         scheduler.step()
 
     # Save model
