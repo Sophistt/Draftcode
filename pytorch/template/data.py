@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # @Date    : 2019-12-20 23:51:38
-# @Author  : Your Name (you@example.org)
-# @Link    : http://example.org
-# @Version : $Id$
+# @Author  : Sophistt 
+# @Link    : https://Sophistt.github.io
+# @Version : 1.0
 
 import os
 import numpy as np

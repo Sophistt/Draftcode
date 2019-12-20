@@ -34,10 +34,11 @@ Codes for creating data pipeline, training the model and results evaluation are 
 ## Usage
 
 1. Clone this folder and enter into the template folder.
-2. Define your own neural network model in `network.py` and redefine the **forward()** function.
-3. Construct **train_loader** and **eval_loader** to load data in `main.py` 
-4. Modify training parameters in `params.py` according your own needs.
-5. Start train and evaluate your own neural network model,
+2. Modify the CustomDataset in `data.py` according to your own dataset. **__getitem__()** and **__len__()** functions should be overridden.
+3. Define your own neural network model in `network.py` and redefine the **forward()** function.
+4. Modify **train_dataset** and **eval_dataset** to create dataset in `main.py`. 
+5. Modify training parameters in `params.py` according your own needs.
+6. Start train and evaluate your own neural network model,
 ```
 python main.py
 ```
