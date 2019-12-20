@@ -27,7 +27,7 @@ def train(args, model, device, train_loader, optimizer, epoch):
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
         output = model(data)
-        loss = F.nll_loss(output, target)
+        loss = F.nll_loss(output, target.view_as(output))
         loss.backward()
         optimizer.step()
 
@@ -49,11 +49,12 @@ def evaluate(args, model, device, eval_loader):
             data, target = data.to(device), target.to(device)
             output = model(data)
             # Sum up batch loss
-            eval_loss += F.nll_loss(output, target, reduction='sum').item()
+            eval_loss += F.nll_loss(output, target.view_as(output), reduction='sum').item()
             # Get the index of the max log-probability
             pred = output.argmax(dim=1, keepdim=True)
             correct += pred.eq(target.view_as(pred)).sum().item()
 
+    return eval_loss, pred, correct
     # Print info
     # eval_loss /= len(eval_loader.dataset)
     # print('\nEval set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
@@ -83,7 +84,7 @@ def main():
     # Train neural network
     for epoch in range(1, args.epoch + 1):
         train(args, model, device, train_loader, optimizer, epoch)
-        evaluate(args, model, device, eval_loader)
+        eval_loss, pred, correct = evaluate(args, model, device, eval_loader)
         scheduler.step()
 
     # Save model

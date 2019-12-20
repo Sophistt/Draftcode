@@ -39,7 +39,7 @@ def train(args, model, device, train_loader, optimizer, epoch):
                 100. * batch_idx / len(train_loader), loss.item()))
 
 
-def evaluate(args, model, device, eval_loader, visual, epoch):
+def evaluate(args, model, device, eval_loader):
 
     model.eval()  # Set the model in evaluate mode.
     eval_loss = 0
@@ -51,17 +51,11 @@ def evaluate(args, model, device, eval_loader, visual, epoch):
             output = model(data)
             # Sum up batch loss
             eval_loss += F.mse_loss(output, target.view_as(output), reduction='sum').item()
-            # Get the index of the max log-probability
-            pred = output.argmax(dim=1, keepdim=True)
-            correct += pred.eq(target.view_as(pred)).sum().item()
 
     # Print info
     eval_loss /= len(eval_loader.dataset)
-    print('\nEval set: Average loss: {:.4f}'.format(eval_loss))
 
-    if args.visualization:
-        visual.add_data(epoch, eval_loss)
-
+    return eval_loss
 
 
 def calculate_R(args, model, device, eval_loader):
@@ -96,13 +90,14 @@ def main():
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
 
+    # Visualize the value of loss function in the train process
     visual = Visualization() if args.visualization else None
     
-    # 
+    # Define dataset
     train_dataset = CustomDataset('./train.txt')
     eval_dataset = CustomDataset('./eval.txt')
     
-    # 
+    # Define dataloader
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                                batch_size=args.batch_size,
                                                shuffle=True,
@@ -113,25 +108,33 @@ def main():
                                               shuffle=False,
                                               **kwargs) 
 
+    # Define nerual network model
     model = Net().to(device)
+
+    # Set Optimizier to calculate gradients
     optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
+    
     # Scheduler of decreasing learning rate each epoch
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
 
     # Train neural network
     for epoch in range(1, args.epochs + 1):
         train(args, model, device, train_loader, optimizer, epoch)
-        evaluate(args, model, device, eval_loader, visual, epoch)
+        eval_loss = evaluate(args, model, device, eval_loader)
         scheduler.step()
+        
         print("R2: ", calculate_R(args, model, device, eval_loader))
 
+        # Update image
         if args.visualization:
+            visual.data_update(epoch, eval_loss)
             visual.render()
 
     # Save model
     if args.save_model:
         torch.save(model.state_dict(), "model_record.pt")
 
+    # Keep showing picture after training model
     if args.visualization:
         visual.terminate()
 

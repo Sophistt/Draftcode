@@ -17,7 +17,7 @@ class Visualization:
         self.epoch_list = []
         self.loss_list = []
 
-    def add_data(self, epoch, loss):
+    def data_update(self, epoch, loss):
         self.epoch_list.append(epoch)
         self.loss_list.append(loss)
 
