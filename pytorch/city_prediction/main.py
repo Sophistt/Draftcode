@@ -18,6 +18,7 @@ from torch.optim.lr_scheduler import StepLR
 from network import Net
 from params import parser
 from data import CustomDataset
+from tool import Visualization
 
 def train(args, model, device, train_loader, optimizer, epoch):
 
@@ -34,11 +35,11 @@ def train(args, model, device, train_loader, optimizer, epoch):
         # Print info
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                epoch, batch_idx % len(data), len(train_loader.dataset),
+                epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.item()))
 
 
-def evaluate(args, model, device, eval_loader):
+def evaluate(args, model, device, eval_loader, visual, epoch):
 
     model.eval()  # Set the model in evaluate mode.
     eval_loss = 0
@@ -57,6 +58,10 @@ def evaluate(args, model, device, eval_loader):
     # Print info
     eval_loss /= len(eval_loader.dataset)
     print('\nEval set: Average loss: {:.4f}'.format(eval_loss))
+
+    if args.visualization:
+        visual.add_data(epoch, eval_loss)
+
 
 
 def calculate_R(args, model, device, eval_loader):
@@ -80,8 +85,6 @@ def calculate_R(args, model, device, eval_loader):
         return 1 - (err / orr)
 
              
-
-
 def main():
 
     # Training Setting
@@ -92,6 +95,8 @@ def main():
     device = torch.device('cuda' if use_cuda else 'cpu')
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
+
+    visual = Visualization() if args.visualization else None
     
     # 
     train_dataset = CustomDataset('./train.txt')
@@ -110,21 +115,25 @@ def main():
 
     model = Net().to(device)
     optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
-    optim.SGD
     # Scheduler of decreasing learning rate each epoch
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
 
     # Train neural network
     for epoch in range(1, args.epochs + 1):
         train(args, model, device, train_loader, optimizer, epoch)
-        evaluate(args, model, device, eval_loader)
+        evaluate(args, model, device, eval_loader, visual, epoch)
         scheduler.step()
+        print("R2: ", calculate_R(args, model, device, eval_loader))
 
-    print(calculate_R(args, model, device, eval_loader))
+        if args.visualization:
+            visual.render()
 
     # Save model
     if args.save_model:
         torch.save(model.state_dict(), "model_record.pt")
+
+    if args.visualization:
+        visual.terminate()
 
 
 if __name__ == '__main__':

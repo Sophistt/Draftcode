@@ -20,8 +20,7 @@ class Net(nn.Module):
         # Define neural network
         # self.conv1 = nn.Conv2d(1, 32, 3, 1)  For example
         self.fc1 = nn.Linear(5, 10).double()
-        self.fc2 = nn.Linear(10, 10).double()
-        self.fc3 = nn.Linear(10, 1).double()
+        self.fc2 = nn.Linear(10, 1).double()
 
 
     # Define the computation performed at every call
@@ -30,8 +29,6 @@ class Net(nn.Module):
         
         x = self.fc1(x)
         x = F.relu(x)
-        x = self.fc2(x)
-        x = F.relu(x)
-        output = self.fc3(x)
+        output = self.fc2(x)
         
         return output 
