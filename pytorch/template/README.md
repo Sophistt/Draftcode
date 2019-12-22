@@ -23,6 +23,8 @@ Codes for creating data pipeline, training the model and results evaluation are 
 - python3.6
   - pytorch 1.4
   - cuda 10.1
+  - matplotlib
+  - numpy
 
  ## Installation 
  

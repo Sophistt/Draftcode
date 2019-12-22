@@ -73,6 +73,10 @@ def main():
     device = torch.device('cuda' if use_cuda else 'cpu')
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
+
+    if args.visualization:
+        from tool import Visualization
+        visualization = Visualization()
     
     # TODO  Define your own train and evaluate dataset
     train_dataset = CustomDataset()
@@ -97,9 +101,17 @@ def main():
         eval_loss = evaluate(args, model, device, eval_loader)
         scheduler.step()
 
+        # Picture updated
+        if args.visualization:
+            visualization.data_update(epoch, eval_loss)
+
     # Save model
     if args.save_model:
         torch.save(model.state_dict(), "model_record.pt")
+
+    # Keep showing picture after training model
+    if args.visualization:
+        visualization.terminate()
 
 
 if __name__ == '__main__':

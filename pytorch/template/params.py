@@ -40,3 +40,7 @@ parser.add_argument('--log-interval', type=int, default=10, metavar='N',
 
 parser.add_argument('--save-model', action='store_true', default=False,
                     help='For saving the current mdel')
+
+parser.add_argument('--visualization', action='store_true', default=False,
+                    help='For visualize the traning process.')
+
