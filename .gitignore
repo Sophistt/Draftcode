@@ -1,4 +1,6 @@
+
 # Python stuff
+__pycache__/
 *.py[co]
 
 # Java binary files
