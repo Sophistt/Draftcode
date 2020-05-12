@@ -3,3 +3,6 @@
 
 # Java binary files
 *.class
+
+# VS code
+.vscode/
