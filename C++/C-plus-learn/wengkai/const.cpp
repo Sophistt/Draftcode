@@ -8,7 +8,7 @@ class A{
 	int i;
 public:
 	A():i(10) {};
-	f() { cout << "f()" << endl; }; 
+	void f() { cout << "f()" << endl; }; 
 };
 
 void f1(const int *x){
