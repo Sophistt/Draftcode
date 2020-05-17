@@ -8,3 +8,10 @@ __pycache__/
 
 # VS code
 .vscode/
+
+# windows executable
+*.exe
+
+# C++ binary files and cmake cache
+build/
+bin/
