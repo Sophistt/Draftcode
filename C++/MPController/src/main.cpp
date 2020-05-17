@@ -1,10 +1,12 @@
-#include "mpcontroller.h"
+#include "mpc_control.h"
 
 int main()
 {
-    MPController *mpcontroller = new MPController();
+    MpcControl *mpc_control = new MpcControl();
 
-    delete mpcontroller;
+    const int kDaysInWeek = 7;  // 常量命名规范
+
+    delete mpc_control;
     
     return 0;
 }
