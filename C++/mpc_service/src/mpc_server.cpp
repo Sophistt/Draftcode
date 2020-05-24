@@ -32,6 +32,9 @@ static int *xstate, *Fstate;
 static double objadd;
 static int objrow;
 
+// Vehicle status Object
+static VehicleState vehicle_state = {0.0, 0.0, 0.0, 0.0};
+
 // Define cost function constraints in this function.
 void SolveUsrF(int *Status, int *n, double x[],
                int  *needF, int *neF, double F[], 
@@ -40,11 +43,34 @@ void SolveUsrF(int *Status, int *n, double x[],
                int    iu[], int *leniu,
                double ru[], int *lenru)
 {
+    // TODO Test Setting boundary in solve function.
+    xlow[0] = 0.0; xlow[1] = -1e20;
+    xupp[0] = 1e20; xupp[1] = 1e20;
+    xstate[0] = 0; xstate[1] = 0;
+    
+    Flow[0] = -1e20; Flow[1] = -1e20; Flow[2] = -1e20;
+    Fupp[0] = 1e20;  Fupp[1] = 4.0;   Fupp[2] = 5.0;
+    Fmul[0] = 0;     Fmul[1] = 0;     Fmul[2] = 0;
+    x[0] = 1.0; x[1] = 1.0;
+
     // In this function, redefine the constraints
     F[0] = x[1];
     F[1] = x[0] * x[0] + 4 * x[1] * x[1];
     F[2] = (x[0] - 2) * (x[0] - 2) + x[1] * x[1];
 };
+
+
+// Define MPC cost function and constraints in it.
+void SolveMpcOpt(int *Status, int *n, double x[],
+                 int  *needF, int *neF, double F[], 
+                 int  *needG, int *neG, double G[],
+                 char    *cu, int *lencu,
+                 int    iu[], int *leniu,
+                 double ru[], int *lenru)
+{
+    // Define cost function
+    
+}
 
 
 void SnOptInit()
@@ -68,22 +94,33 @@ void SnOptInit()
 };
 
 
+bool MpcCallback(autopilot_control_msgs::PathTrackByMpc::Request &req,
+                 autopilot_control_msgs::PathTrackByMpc::Response &res)
+{
+    vehicle_state.x = req.x;
+    vehicle_state.y = req.y;
+    vehicle_state.v = req.v;
+    vehicle_state.theta = req.theta;
+
+    // Solve the optimization problem
+    sp.solve(kCold, neF, n, objadd, objrow, SolveMpcOpt,
+            xlow, xupp, Flow, Fupp,
+            x, xstate, xmul, F, Fstate, Fmul,
+            nS, nInf, sInf);
+    
+    // Return the optimal solution
+    res.u.clear();
+
+    return true;
+}
+
+
 bool MpcCallback(snopt_msgs::SnoptCal::Request &req,
                  snopt_msgs::SnoptCal::Response &res)
 {
     c1 = req.c1;
     c2 = req.c2;
 
-    // Set boundary
-    xlow[0] = 0.0; xlow[1] = -1e20;
-    xupp[0] = 1e20; xupp[1] = 1e20;
-    xstate[0] = 0; xstate[1] = 0;
-    
-    Flow[0] = -1e20; Flow[1] = -1e20; Flow[2] = -1e20;
-    Fupp[0] = 1e20;  Fupp[1] = 4.0;   Fupp[2] = 5.0;
-    Fmul[0] = 0;     Fmul[1] = 0;     Fmul[2] = 0;
-    x[0] = 1.0; x[1] = 1.0;
-   
     sp.solve(kCold, neF, n, objadd, objrow, SolveUsrF,
             xlow, xupp, Flow, Fupp,
             x, xstate, xmul, F, Fstate, Fmul,
@@ -95,6 +132,9 @@ bool MpcCallback(snopt_msgs::SnoptCal::Request &req,
 
     return true;
 }
+
+
+                 
 
 
 int main(int argc, char **argv)

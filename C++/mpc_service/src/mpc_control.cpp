@@ -27,12 +27,10 @@ MpcControl::MpcControl()
 }
 
 
-
 MpcControl::~MpcControl()
 {   
     std::cout << "MPC Cotrol deconstruct." << std::endl;
 }
-
 
 
 // Update vehicle state according to current speed and steering angle by kinematic model.
